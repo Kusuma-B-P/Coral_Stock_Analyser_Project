@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "coral": {
+      "type": "stdio",
+      "command": "coral",
+      "args": ["mcp-stdio"]
+    }
+  }
+}

@@ -1,0 +1,70 @@
+name: sec_edgar
+version: 0.1.0
+dsl_version: 3
+backend: http
+inputs:
+  SEC_USER_AGENT:
+    kind: variable
+    default: "StockAnalyzer contact@example.com"
+    hint: "Required by SEC EDGAR. Format: AppName email@domain.com"
+base_url: "https://efts.sec.gov"
+auth:
+  type: HeaderAuth
+  headers:
+    - name: User-Agent
+      from: template
+      template: "{{input.SEC_USER_AGENT}}"
+tables:
+  - name: filings
+    description: "SEC EDGAR full-text search. Use form_type filter for 8-K (major events), 10-K (annual report), 10-Q (quarterly)."
+    filters:
+      - name: form_type
+        type: Utf8
+        required: false
+        description: "SEC form type: 8-K, 10-K, 10-Q, etc."
+      - name: entity_name
+        type: Utf8
+        required: false
+        description: "Company name filter"
+    request:
+      method: GET
+      path: /LATEST/search-index
+      query:
+        - name: forms
+          from: filter
+          key: form_type
+        - name: entity
+          from: filter
+          key: entity_name
+    response:
+      rows_path:
+        - hits
+        - hits
+    columns:
+      - name: entity_name
+        type: Utf8
+        path:
+          - _source
+          - display_names
+          - 0
+      - name: file_date
+        type: Utf8
+        path:
+          - _source
+          - file_date
+      - name: form_type
+        type: Utf8
+        path:
+          - _source
+          - form_type
+      - name: period_of_report
+        type: Utf8
+        path:
+          - _source
+          - period_ending
+      - name: items
+        type: Utf8
+        path:
+          - _source
+          - items
+          - 0

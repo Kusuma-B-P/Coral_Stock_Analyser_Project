@@ -1,0 +1,28 @@
+# Secrets
+.env
+
+# Python
+venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Data files (generated at runtime)
+data/prices.jsonl
+data/chart.png
+data/yfcache/
+
+# Coral binary
+coral.exe
+coral-bin/
+coral-x86_64-pc-windows-msvc.zip
+
+# IDE
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db

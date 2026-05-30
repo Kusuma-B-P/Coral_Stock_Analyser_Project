@@ -1,0 +1,125 @@
+name: finnhub
+version: 0.1.0
+dsl_version: 3
+backend: http
+inputs:
+  FINNHUB_API_KEY:
+    kind: secret
+    hint: "Your Finnhub API key from https://finnhub.io (free tier)"
+base_url: "https://finnhub.io/api/v1"
+auth:
+  type: HeaderAuth
+  headers:
+    - name: X-Finnhub-Token
+      from: template
+      template: "{{input.FINNHUB_API_KEY}}"
+tables:
+  - name: news
+    description: "Latest company news. Filter by symbol (required) and unix timestamp date range."
+    filters:
+      - name: symbol
+        type: Utf8
+        required: true
+        description: "Stock ticker symbol, e.g. NVDA"
+      - name: datetime
+        type: Int64
+        required: false
+        description: "Unix timestamp filter for date range"
+    request:
+      method: GET
+      path: /company-news
+      query:
+        - name: symbol
+          from: filter
+          key: symbol
+        - name: from
+          from: literal
+          value: "1970-01-01"
+        - name: to
+          from: literal
+          value: "2099-12-31"
+    response:
+      rows_path: []
+    columns:
+      - name: id
+        type: Int64
+      - name: headline
+        type: Utf8
+      - name: summary
+        type: Utf8
+      - name: datetime
+        type: Int64
+        description: "Unix timestamp of the article"
+      - name: symbol
+        type: Utf8
+      - name: source
+        type: Utf8
+      - name: url
+        type: Utf8
+
+  - name: analyst_ratings
+    description: "Wall Street analyst buy/sell/hold consensus by ticker symbol."
+    filters:
+      - name: symbol
+        type: Utf8
+        required: true
+        description: "Stock ticker symbol, e.g. NVDA"
+    request:
+      method: GET
+      path: /stock/recommendation
+      query:
+        - name: symbol
+          from: filter
+          key: symbol
+    response:
+      rows_path: []
+    columns:
+      - name: symbol
+        type: Utf8
+      - name: buy
+        type: Int64
+      - name: strongBuy
+        type: Int64
+      - name: sell
+        type: Int64
+      - name: strongSell
+        type: Int64
+      - name: hold
+        type: Int64
+      - name: period
+        type: Utf8
+
+  - name: insider_trades
+    description: "Recent insider buy/sell transactions (Form 4 SEC filings)."
+    filters:
+      - name: symbol
+        type: Utf8
+        required: true
+        description: "Stock ticker symbol, e.g. NVDA"
+    request:
+      method: GET
+      path: /stock/insider-transactions
+      query:
+        - name: symbol
+          from: filter
+          key: symbol
+    response:
+      rows_path:
+        - data
+    columns:
+      - name: symbol
+        type: Utf8
+      - name: name
+        type: Utf8
+      - name: title
+        type: Utf8
+      - name: share
+        type: Int64
+      - name: change
+        type: Int64
+      - name: transactionDate
+        type: Utf8
+      - name: transactionCode
+        type: Utf8
+      - name: transactionPrice
+        type: Float64

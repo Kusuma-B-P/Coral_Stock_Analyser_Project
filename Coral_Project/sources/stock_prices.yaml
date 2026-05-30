@@ -1,0 +1,37 @@
+name: stock_prices
+version: 0.1.0
+dsl_version: 3
+backend: jsonl
+tables:
+  - name: daily
+    description: "Daily OHLCV price data and company metadata. Refreshed per-ticker by running fetch_prices.py."
+    source:
+      location: "file:///D:/Coral_Project_New/Coral_Project/data/"
+      glob: "*.jsonl"
+    columns:
+      - name: ticker
+        type: Utf8
+      - name: company_name
+        type: Utf8
+      - name: sector
+        type: Utf8
+      - name: date
+        type: Utf8
+      - name: open
+        type: Float64
+      - name: high
+        type: Float64
+      - name: low
+        type: Float64
+      - name: close
+        type: Float64
+      - name: volume
+        type: Int64
+      - name: market_cap
+        type: Int64
+      - name: pe_ratio
+        type: Float64
+      - name: week_52_high
+        type: Float64
+      - name: week_52_low
+        type: Float64
