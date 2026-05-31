@@ -21,11 +21,23 @@ def fetch_prices(ticker: str) -> int:
     print(f"Fetching price data for {ticker}...")
 
     stock = yf.Ticker(ticker)
-    df = yf.download(ticker, period="1mo", interval="1d", progress=False)
 
-    if df.empty:
+    df = None
+    for attempt in range(3):
+        try:
+            df = yf.download(ticker, period="1mo", interval="1d", progress=False)
+            if not df.empty:
+                break
+        except Exception as e:
+            print(f"Attempt {attempt+1} failed: {e}")
+            if attempt < 2:
+                import time
+                time.sleep(5)
+
+    if df is None or df.empty:
         print(f"ERROR: No data found for ticker '{ticker}'. Check the symbol.")
         sys.exit(1)
+
 
     df = df.reset_index()
     # Flatten multi-level columns if present (yfinance sometimes returns these)
